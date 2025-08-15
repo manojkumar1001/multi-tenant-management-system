@@ -13,6 +13,9 @@ import { Notifications } from './collections/Notifications'
 import { Bookings } from './collections/Bookings'
 import { BookingLogs } from './collections/BookingLogs'
 import { Events } from './collections/Events'
+import { config as dotenvConfig } from 'dotenv'
+
+dotenvConfig()
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -25,22 +28,6 @@ export default buildConfig({
     },
   },
   collections: [Users, Tenants, Notifications, Bookings, BookingLogs, Events],
-  onInit: async (payload) => {
-    const existing = await payload.find({
-      collection: 'tenants',
-      where: { name: { equals: 'Default Tenant' } },
-    })
-
-    if (existing.totalDocs === 0) {
-      await payload.create({
-        collection: 'tenants',
-        data: {
-          name: 'Default Tenant',
-        },
-      })
-      console.log('✅ Default tenant created')
-    }
-  },
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {
