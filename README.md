@@ -6,5 +6,5 @@
 - `cd multi-tenant-management-system`
 - `cp .env.example .env` add your secretkey and neon db connection link in .env file after this
 - `npm install`
+- `npm run seed`
 - `npm run dev`
-- `http://localhost:3000/admin` and create first User with admin role
