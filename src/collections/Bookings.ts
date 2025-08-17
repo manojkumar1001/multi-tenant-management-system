@@ -62,61 +62,18 @@ export const Bookings: CollectionConfig = {
             )
           }
 
-          // Count confirmed bookings
-          const confirmedCount = await req.payload
-            .find({
-              collection: 'bookings',
-              where: {
-                event: { equals: eventId },
-                status: { equals: 'confirmed' },
-              },
-            })
-            .then((res) => res.totalDocs)
-
-          // Determine status
-          const status = confirmedCount < event.capacity ? 'confirmed' : 'waitlisted'
           const createdAt = new Date().toDateString()
-          const autoAction = status === 'confirmed' ? 'auto_confirm' : 'auto_waitlist'
           const tenant = req.user.tenant
 
-          // Create booking
           const booking = await req.payload.create({
             collection: 'bookings',
             req,
             data: {
               event: parseInt(eventId),
               user: userId,
-              status,
+              status: 'waitlisted',
               tenant,
               createdAt,
-            },
-          })
-
-          // Create Notification
-          await req.payload.create({
-            collection: 'notifications',
-            req,
-            data: {
-              user: userId,
-              booking: booking.id,
-              type: status === 'confirmed' ? 'booking_confirmed' : 'waitlisted',
-              title: 'Booking Update',
-              message: `Your booking is ${status}`,
-              tenant: req.user.tenant,
-            },
-          })
-
-          // Create BookingLog
-          await req.payload.create({
-            collection: 'bookinglogs',
-            req,
-            data: {
-              booking: booking.id,
-              event: parseInt(eventId),
-              user: userId,
-              action: autoAction,
-              note: 'Automatic booking',
-              tenant: req.user.tenant,
             },
           })
 

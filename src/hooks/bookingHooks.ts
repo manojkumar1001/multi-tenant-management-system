@@ -20,9 +20,38 @@ export const handleBookingCreate = async ({ data, req, operation }: any) => {
 }
 
 export const handleBookingUpdate = async ({ doc, req, operation, previousDoc }: any) => {
-  console.log(doc)
-  // Handle cancellation
-  if (operation === 'update' && previousDoc.status !== doc.status && doc.status === 'canceled') {
+  if (operation === 'create') {
+    await req.payload.create({
+      collection: 'notifications',
+      req,
+      data: {
+        user: doc.user.id,
+        booking: doc.id,
+        type: doc.status === 'confirmed' ? 'booking_confirmed' : 'waitlisted',
+        title: 'Booking Update',
+        message: `Your booking is ${doc.status}`,
+        tenant: req.user.tenant,
+      },
+    })
+
+    // Create BookingLog
+    await req.payload.create({
+      collection: 'bookinglogs',
+      req,
+      data: {
+        booking: doc.id,
+        event: parseInt(doc.event.id),
+        user: doc.user.id,
+        action: doc.status === 'confirmed' ? 'booking_confirmed' : 'waitlisted',
+        note: 'Automatic booking',
+        tenant: req.user.tenant,
+      },
+    })
+  } else if (
+    operation === 'update' &&
+    previousDoc.status !== doc.status &&
+    doc.status === 'canceled'
+  ) {
     await req.payload.create({
       collection: 'bookinglogs',
       req,
