@@ -280,7 +280,25 @@ export async function seedDatabase() {
         collection: 'events',
         data: {
           title: eventData.title,
-          description: eventData.description,
+          description: {
+            root: {
+              type: 'root',
+              children: [
+                {
+                  type: 'paragraph',
+                  children: [{ type: 'text', text: eventData.description, version: 1 }],
+                  direction: 'ltr',
+                  format: '',
+                  indent: 0,
+                  version: 1,
+                },
+              ],
+              direction: 'ltr',
+              format: '',
+              indent: 0,
+              version: 1,
+            },
+          },
           date: eventData.date.toDateString(),
           capacity: eventData.capacity,
           organizer: users[eventData.organizerIndex].id,
